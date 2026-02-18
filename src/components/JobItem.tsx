@@ -13,12 +13,14 @@ export default function JobItem({ job, candidate }: any) {
         uuid: candidate.uuid,
         jobId: job.id,
         candidateId: candidate.candidateId,
+        applicationId: candidate.applicationId,
         repoUrl,
       });
 
       setStatus("✅ Applied!");
-    } catch {
-      setStatus("❌ Failed");
+    } catch (err: any) {
+      console.error(err);
+      setStatus("❌ Failed to apply!" + err.message)
     }
   }
 

@@ -1,41 +1,55 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { getCandidate, getJobs } from "./services/api";
 import JobList from "./components/JobList";
 
-
 export default function App() {
+  const [email, setEmail] = useState("");
   const [candidate, setCandidate] = useState<any>(null);
   const [jobs, setJobs] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const email = prompt("Enter your email") || "";
-        const c = await getCandidate(email);
-        const j = await getJobs();
+  async function handleLoad() {
+    try {
+      setLoading(true);
+      setError("");
 
-        setCandidate(c);
-        setJobs(j);
-      } catch (err) {
-        setError("Error loading data");
-      } finally {
-        setLoading(false);
-      }
+      const c = await getCandidate(email);
+      const j = await getJobs();
+
+      setCandidate(c);
+      setJobs(j);
+    } catch {
+      setError("Failed to load data");
+    } finally {
+      setLoading(false);
     }
+  }
 
-    loadData();
-  }, []);
+  if (!candidate) {
+    return (
+      <main>
+        <h1>Nimble Gravity Challenge</h1>
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>{error}</p>;
+        <input
+          placeholder="Enter your email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+
+        <button onClick={handleLoad} disabled={loading}>
+          {loading ? "Loading..." : "Start"}
+        </button>
+
+        {error && <p>{error}</p>}
+      </main>
+    );
+  }
 
   return (
-  <main>
-    <h1>Welcome {candidate.firstName}</h1>
-    <JobList jobs={jobs} candidate={candidate} />
-  </main>
-);
-
+    <main>
+      <h1>Welcome {candidate.firstName}</h1>
+      <JobList jobs={jobs} candidate={candidate} />
+    </main>
+  );
 }
